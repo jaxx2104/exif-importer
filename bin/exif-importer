@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+import { parseCliArguments } from '../lib/cli.mjs';
+import { getFilesWithExtension, buildFilePaths, writeXMPFile } from '../lib/file-utils.mjs';
+import { getMetadata } from '../lib/metadata-processor.mjs';
+import { generateXMPContent } from '../lib/xmp-generator.mjs';
+
+async function main() {
+  try {
+    const { extension, targetDirectory } = parseCliArguments();
+    const files = getFilesWithExtension(targetDirectory, extension);
+
+    for (const file of files) {
+      try {
+        const { inputFile, outputXMP, xmlFile } = buildFilePaths(targetDirectory, file, extension);
+        
+        const metadata = await getMetadata(inputFile, xmlFile);
+        const fileExtension = extension.toUpperCase();
+        const xmpContent = generateXMPContent(fileExtension, metadata);
+        
+        await writeXMPFile(outputXMP, xmpContent);
+        console.log(`Successfully created: ${outputXMP}`);
+      } catch (error) {
+        console.error(`Error processing file ${file}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+}
+
+main();

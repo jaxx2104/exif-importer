@@ -1,15 +1,18 @@
 {
   "name": "exif-importer",
   "version": "1.0.0",
-  "main": "main.js",
+  "type": "module",
+  "bin": {
+    "exif-importer": "./bin/exif-importer"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/test.mjs",
     "lint": "eslint --fix .",
     "format": "prettier --write ."
   },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "CLI tool for generating XMP metadata files from video files",
   "dependencies": {
     "date-fns": "^4.1.0",
     "dist-exiftool": "^10.53.0",

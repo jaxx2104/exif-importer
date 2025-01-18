@@ -1,33 +1,49 @@
 # Exif Importer
 
-A tool that extracts metadata from media files in a specified directory and outputs them as XMP files.
+A tool to export video metadata in XMP format
 
 ## Installation
 
-1. Install Node.js
-2. Run the following in the project directory:
-
 ```bash
-npm install
+npm install -g .
 ```
 
 ## Usage
 
 ```bash
-node main.mjs -e [extension] -t [target directory]
+exif-importer -e <extension> -t <target-directory>
 ```
 
 Example:
-
 ```bash
-node main.mjs -e mp4 -t /path/to/directory
+exif-importer -e mp4 -t /path/to/videos
 ```
 
-## Dependencies
+## Module Structure
 
-- [date-fns](https://date-fns.org/) - Date manipulation library
-- [dist-exiftool](https://github.com/Sobesednik/node-exiftool) - ExifTool wrapper
+- `cli.mjs`: CLI argument processing
+- `file-utils.mjs`: File operations
+- `xml-parser.mjs`: XML parsing
+- `date-formatter.mjs`: Date formatting
+- `xmp-generator.mjs`: XMP generation
+- `metadata-processor.mjs`: Metadata processing
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run linter
+npm run lint
+
+# Run formatter
+npm run format
+```
 
 ## License
 
-ISC License
+MIT
