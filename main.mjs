@@ -1,9 +1,10 @@
-import { readdirSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync } from "fs";
 import { extname, join, basename } from "path";
 import { execFile } from 'child_process';
 import exiftool from 'dist-exiftool';
 import { parseArgs } from "node:util";
 import { formatISO } from "date-fns";
+import { parseStringPromise } from 'xml2js';
 
 
 // コマンドライン引数の取得
@@ -31,22 +32,41 @@ if (files.length === 0) {
 }
 
 // 各ファイルに対して処理を実行
-files.forEach(file => {
+files.forEach(async (file) => {
   const inputFile = join(target, file);
   const outputXMP = join(target, `${basename(file, extname(file))}.xmp`);
 
-  // ExifToolを実行してメタデータを取得
-  execFile(exiftool, ['-j', inputFile], (error, stdout, stderr) => {
-    if (error) {
-      console.error(`ExifToolエラー: ${error}`);
-      return;
-    }
-
-    const metadata = JSON.parse(stdout);
-    const createDate = formatDate(metadata[0]["CreateDate"]) || "N/A";
-    const modifyDate = formatDate(metadata[0]["ModifyDate"]) || "N/A";
-    const gpsLatitude = metadata[0]["GPSLatitude"] || "N/A";
-    const gpsLongitude = metadata[0]["GPSLongitude"] || "N/A";
+  try {
+    // XMLファイルのパスを構築
+    const xmlFile = join(target, `${basename(file, extname(file))}M01.XML`);
+    
+    // 並列でメタデータを取得
+    const [exifMetadata, xmlMetadata] = await Promise.all([
+      // ExifToolのメタデータ
+      new Promise((resolve, reject) => {
+        execFile(exiftool, ['-j', inputFile], (error, stdout, stderr) => {
+          if (error) return reject(`ExifToolエラー: ${error}`);
+          resolve(JSON.parse(stdout));
+        });
+      }),
+      // XMLメタデータ
+      parseXmlFile(xmlFile)
+    ]);
+    
+    const metadata = exifMetadata[0];
+    // ExifToolのメタデータ
+    const createDate = formatDate(metadata["CreateDate"]) || xmlMetadata.CreationDate?.[0].$.value || "N/A";
+    const modifyDate = formatDate(metadata["ModifyDate"]) || "N/A";
+    
+    // GPSデータ (XML優先)
+    const gps = xmlMetadata.AcquisitionRecord?.[0].Group?.find(g => g.$.name === "ExifGPS")?.Item || [];
+    const gpsData = Object.fromEntries(gps.map(item => [item.$.name, item.$.value]));
+    
+    const gpsLatitude = gpsData.Latitude ? `${gpsData.LatitudeRef} ${gpsData.Latitude}` : metadata["GPSLatitude"] || "N/A";
+    const gpsLongitude = gpsData.Longitude ? `${gpsData.LongitudeRef} ${gpsData.Longitude}` : metadata["GPSLongitude"] || "N/A";
+    
+    // カメラ情報
+    const cameraModel = xmlMetadata.Device?.[0].$.modelName || "N/A";
     const fileExtension = extname(file).toUpperCase().replace('.', '');
 
     console.log(createDate)
@@ -57,26 +77,40 @@ files.forEach(file => {
   <rdf:Description rdf:about=""
     xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
     xmlns:xmp="http://ns.adobe.com/xap/1.0/"
-    xmlns:exif="http://ns.adobe.com/exif/1.0/">
+    xmlns:exif="http://ns.adobe.com/exif/1.0/"
+    xmlns:tiff="http://ns.adobe.com/tiff/1.0/">
    <photoshop:SidecarForExtension>${fileExtension}</photoshop:SidecarForExtension>
    <photoshop:DateCreated>${createDate}</photoshop:DateCreated>
    <xmp:CreateDate>${createDate}</xmp:CreateDate>
    <xmp:ModifyDate>${modifyDate}</xmp:ModifyDate>
    <exif:GPSLongitude>${gpsLongitude}</exif:GPSLongitude>
    <exif:GPSLatitude>${gpsLatitude}</exif:GPSLatitude>
+   <tiff:Model>${cameraModel}</tiff:Model>
   </rdf:Description>
  </rdf:RDF>
 </x:xmpmeta>
 `;
 
     // XMPファイルに書き込み
-    try {
-      writeFileSync(outputXMP, xmpContent, "utf-8");
-    } catch (err) {
-      console.error(`XMPファイルの書き込みに失敗しました: ${stderr}`);
-    }
-  });
+    await writeFileSync(outputXMP, xmpContent, "utf-8");
+  } catch (error) {
+    console.error(`エラーが発生しました: ${error}`);
+  }
 });
+
+// XMLファイルをパースする関数
+async function parseXmlFile(xmlPath) {
+  try {
+    const xmlData = await readFileSync(xmlPath, 'utf-8');
+    return await parseStringPromise(xmlData, {
+      explicitArray: false,
+      mergeAttrs: true
+    });
+  } catch (error) {
+    console.error(`XMLファイルの読み込みに失敗しました: ${error}`);
+    return {};
+  }
+}
 
 function formatDate(inputDateStr) {
   // 入力の日付文字列をパース
