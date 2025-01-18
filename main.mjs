@@ -18,7 +18,7 @@ try {
   ext = values.ext
   target = values.target
 } catch (error) {
-  console.error("使用方法: node main.js -e 'mp4' -t '/mnt/c/Users/'");
+  console.error("使用方法: node main.mjs -e 'mp4' -t '/mnt/c/Users/'");
   process.exit(1);
 }
 
