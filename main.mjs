@@ -55,21 +55,22 @@ files.forEach(async (file) => {
     
     const metadata = exifMetadata[0];
     // ExifToolのメタデータ
-    const createDate = formatDate(metadata["CreateDate"]) || xmlMetadata.CreationDate?.[0].$.value || "N/A";
-    const modifyDate = formatDate(metadata["ModifyDate"]) || "N/A";
+    console.log(xmlMetadata.NonRealTimeMeta.Device.modelName)
+
+    // 日付情報 (XML優先)
+    const createDate = xmlMetadata.NonRealTimeMeta.CreationDate.value || formatDate(metadata["CreateDate"]) || "N/A";
+    const modifyDate = xmlMetadata.NonRealTimeMeta.CreationDate.value || formatDate(metadata["ModifyDate"]) || "N/A";
     
     // GPSデータ (XML優先)
-    const gps = xmlMetadata.AcquisitionRecord?.[0].Group?.find(g => g.$.name === "ExifGPS")?.Item || [];
-    const gpsData = Object.fromEntries(gps.map(item => [item.$.name, item.$.value]));
+    const gps = xmlMetadata.NonRealTimeMeta.AcquisitionRecord.Group.Item || [];
+    const gpsData = Object.fromEntries(gps.map(item => [item.name, item.value]));
     
-    const gpsLatitude = gpsData.Latitude ? `${gpsData.LatitudeRef} ${gpsData.Latitude}` : metadata["GPSLatitude"] || "N/A";
-    const gpsLongitude = gpsData.Longitude ? `${gpsData.LongitudeRef} ${gpsData.Longitude}` : metadata["GPSLongitude"] || "N/A";
+    const gpsLatitude = gpsData.Latitude ? gpsData.Latitude : "N/A";
+    const gpsLongitude = gpsData.Longitude ? gpsData.Longitude : "N/A";
     
-    // カメラ情報
-    const cameraModel = xmlMetadata.Device?.[0].$.modelName || "N/A";
+    // カメラ情報 (XML優先)
+    const cameraModel = xmlMetadata.NonRealTimeMeta.Device.modelName || metadata["Model"] || "N/A";
     const fileExtension = extname(file).toUpperCase().replace('.', '');
-
-    console.log(createDate)
 
     // XMPの内容を構築
     const xmpContent = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.5.0">
