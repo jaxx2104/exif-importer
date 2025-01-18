@@ -15,6 +15,7 @@ exif-importer -e <extension> -t <target-directory>
 ```
 
 Example:
+
 ```bash
 exif-importer -e mp4 -t /path/to/videos
 ```
