@@ -18,6 +18,7 @@ node main.mjs -e [extension] -t [target directory]
 ```
 
 Example:
+
 ```bash
 node main.mjs -e mp4 -t /path/to/directory
 ```

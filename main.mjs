@@ -1,31 +1,34 @@
-import { readdirSync, readFileSync, writeFileSync } from "fs";
-import { extname, join, basename } from "path";
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
+import { extname, join, basename } from 'path';
 import { execFile } from 'child_process';
 import exiftool from 'dist-exiftool';
-import { parseArgs } from "node:util";
-import { formatISO } from "date-fns";
+import { parseArgs } from 'node:util';
+import { formatISO } from 'date-fns';
 import { parseStringPromise } from 'xml2js';
 
-
 // コマンドライン引数の取得
-let ext
-let target 
+let ext;
+let target;
 
 try {
-  const { values } = parseArgs({ options: {
-    ext: { type: "string", short: "e", multiple: false },
-    target: { type: "string", short: "t", multiple: false },
-  }, args: process.argv.slice(2) });
-  ext = values.ext
-  target = values.target
+  const { values } = parseArgs({
+    options: {
+      ext: { type: 'string', short: 'e', multiple: false },
+      target: { type: 'string', short: 't', multiple: false },
+    },
+    args: process.argv.slice(2),
+  });
+  ext = values.ext;
+  target = values.target;
 } catch (error) {
   console.error("使用方法: node main.mjs -e 'mp4' -t '/mnt/c/Users/'");
   process.exit(1);
 }
 
-
 // 指定ディレクトリ内の特定拡張子を持つファイルを取得
-const files = readdirSync(target).filter(file => extname(file).toLowerCase() === `.${ext}`);
+const files = readdirSync(target).filter(
+  (file) => extname(file).toLowerCase() === `.${ext}`,
+);
 if (files.length === 0) {
   console.log(`指定されたディレクトリには ${ext} ファイルが見つかりません。`);
   process.exit(0);
@@ -39,7 +42,7 @@ files.forEach(async (file) => {
   try {
     // XMLファイルのパスを構築
     const xmlFile = join(target, `${basename(file, extname(file))}M01.XML`);
-    
+
     // 並列でメタデータを取得
     const [exifMetadata, xmlMetadata] = await Promise.all([
       // ExifToolのメタデータ
@@ -50,26 +53,37 @@ files.forEach(async (file) => {
         });
       }),
       // XMLメタデータ
-      parseXmlFile(xmlFile)
+      parseXmlFile(xmlFile),
     ]);
-    
+
     const metadata = exifMetadata[0];
     // ExifToolのメタデータ
-    console.log(xmlMetadata.NonRealTimeMeta.Device.modelName)
+    console.log(xmlMetadata.NonRealTimeMeta.Device.modelName);
 
     // 日付情報 (XML優先)
-    const createDate = xmlMetadata.NonRealTimeMeta.CreationDate.value || formatDate(metadata["CreateDate"]) || "N/A";
-    const modifyDate = xmlMetadata.NonRealTimeMeta.CreationDate.value || formatDate(metadata["ModifyDate"]) || "N/A";
-    
+    const createDate =
+      xmlMetadata.NonRealTimeMeta.CreationDate.value ||
+      formatDate(metadata['CreateDate']) ||
+      'N/A';
+    const modifyDate =
+      xmlMetadata.NonRealTimeMeta.CreationDate.value ||
+      formatDate(metadata['ModifyDate']) ||
+      'N/A';
+
     // GPSデータ (XML優先)
     const gps = xmlMetadata.NonRealTimeMeta.AcquisitionRecord.Group.Item || [];
-    const gpsData = Object.fromEntries(gps.map(item => [item.name, item.value]));
-    
-    const gpsLatitude = gpsData.Latitude ? gpsData.Latitude : "N/A";
-    const gpsLongitude = gpsData.Longitude ? gpsData.Longitude : "N/A";
-    
+    const gpsData = Object.fromEntries(
+      gps.map((item) => [item.name, item.value]),
+    );
+
+    const gpsLatitude = gpsData.Latitude ? gpsData.Latitude : 'N/A';
+    const gpsLongitude = gpsData.Longitude ? gpsData.Longitude : 'N/A';
+
     // カメラ情報 (XML優先)
-    const cameraModel = xmlMetadata.NonRealTimeMeta.Device.modelName || metadata["Model"] || "N/A";
+    const cameraModel =
+      xmlMetadata.NonRealTimeMeta.Device.modelName ||
+      metadata['Model'] ||
+      'N/A';
     const fileExtension = extname(file).toUpperCase().replace('.', '');
 
     // XMPの内容を構築
@@ -93,7 +107,7 @@ files.forEach(async (file) => {
 `;
 
     // XMPファイルに書き込み
-    await writeFileSync(outputXMP, xmpContent, "utf-8");
+    await writeFileSync(outputXMP, xmpContent, 'utf-8');
   } catch (error) {
     console.error(`エラーが発生しました: ${error}`);
   }
@@ -105,7 +119,7 @@ async function parseXmlFile(xmlPath) {
     const xmlData = await readFileSync(xmlPath, 'utf-8');
     return await parseStringPromise(xmlData, {
       explicitArray: false,
-      mergeAttrs: true
+      mergeAttrs: true,
     });
   } catch (error) {
     console.error(`XMLファイルの読み込みに失敗しました: ${error}`);
@@ -115,9 +129,9 @@ async function parseXmlFile(xmlPath) {
 
 function formatDate(inputDateStr) {
   // 入力の日付文字列をパース
-  const [datePart, timePart] = inputDateStr.split(" ");
-  const [year, month, day] = datePart.split(":");
-  const [hour, minute, second] = timePart.split(":");
+  const [datePart, timePart] = inputDateStr.split(' ');
+  const [year, month, day] = datePart.split(':');
+  const [hour, minute, second] = timePart.split(':');
 
   // Dateオブジェクトを生成
   const date = new Date(year, month - 1, day, hour, minute, second);

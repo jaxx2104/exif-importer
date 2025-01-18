@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --fix .",
+    "format": "prettier --write ."
   },
   "author": "",
   "license": "ISC",
@@ -12,5 +14,12 @@
     "date-fns": "^4.1.0",
     "dist-exiftool": "^10.53.0",
     "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2"
   }
 }
