@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { parseCliArguments } from "../lib/cli.mjs";
+import { getConfiguration } from "../lib/cli.mjs";
 import {
   getFilesWithExtension,
   buildFilePaths,
@@ -11,7 +11,7 @@ import { generateXMPContent } from "../lib/xmp-generator.mjs";
 
 async function main() {
   try {
-    const { extension, targetDirectory } = parseCliArguments();
+    const { extension, targetDirectory } = getConfiguration();
     const files = getFilesWithExtension(targetDirectory, extension);
 
     for (const file of files) {
