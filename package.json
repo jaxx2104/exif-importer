@@ -3,19 +3,25 @@
   "version": "1.0.0",
   "type": "module",
   "bin": {
-    "exif-importer": "./bin/exif-importer"
+    "exif-importer": "./bin/exif-importer",
+    "exif-importer-web": "./bin/web-server"
   },
   "scripts": {
     "test": "node test/test.mjs",
     "lint": "eslint --fix .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "start": "node bin/web-server",
+    "dev": "node bin/web-server"
   },
   "author": "",
   "license": "ISC",
   "description": "CLI tool for generating XMP metadata files from video files",
   "dependencies": {
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dist-exiftool": "^10.53.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {

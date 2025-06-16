@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { getConfiguration } from "../lib/cli.mjs";
+import { getConfiguration } from "../lib/cli/index.mjs";
 import {
   getFilesWithExtension,
   buildFilePaths,
   writeXMPFile,
-} from "../lib/file-utils.mjs";
-import { getMetadata } from "../lib/metadata-processor.mjs";
-import { generateXMPContent } from "../lib/xmp-generator.mjs";
+  getMetadata,
+  generateXMPContent,
+} from "../lib/core/index.mjs";
 
 async function main() {
   try {
