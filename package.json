@@ -10,8 +10,8 @@
     "test": "node test/test.mjs",
     "lint": "eslint --fix .",
     "format": "prettier --write .",
-    "start": "node bin/web-server",
-    "dev": "node bin/web-server"
+    "start": "node bin/web-server && npm run dev",
+    "dev": "vite"
   },
   "author": "",
   "license": "ISC",
@@ -22,12 +22,16 @@
     "dist-exiftool": "^10.53.0",
     "express": "^5.1.0",
     "multer": "^2.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^15.14.0",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "vite": "^6.3.5"
   }
 }

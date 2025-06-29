@@ -2,7 +2,7 @@
 
 import { getConfiguration } from "../lib/cli/index.mjs";
 import {
-  getFilesWithExtension,
+  getFilesWithExtensions,
   buildFilePaths,
   writeXMPFile,
   getMetadata,
@@ -11,19 +11,18 @@ import {
 
 async function main() {
   try {
-    const { extension, targetDirectory } = getConfiguration();
-    const files = getFilesWithExtension(targetDirectory, extension);
+    const { extensions, targetDirectory } = getConfiguration();
+    const files = getFilesWithExtensions(targetDirectory, extensions);
 
     for (const file of files) {
       try {
         const { inputFile, outputXMP, xmlFile } = buildFilePaths(
           targetDirectory,
           file,
-          extension,
         );
 
         const metadata = await getMetadata(inputFile, xmlFile);
-        const fileExtension = extension.toUpperCase();
+        const fileExtension = file.split('.').pop().toUpperCase();
         const xmpContent = generateXMPContent(fileExtension, metadata);
 
         await writeXMPFile(outputXMP, xmpContent);
