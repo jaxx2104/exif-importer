@@ -3,35 +3,25 @@
   "version": "1.0.0",
   "type": "module",
   "bin": {
-    "exif-importer": "./bin/exif-importer",
-    "exif-importer-web": "./bin/web-server"
+    "exif-importer": "./bin/exif-importer"
   },
   "scripts": {
-    "test": "node test/test.mjs",
+    "start": "node ./bin/exif-importer",
     "lint": "eslint --fix .",
-    "format": "prettier --write .",
-    "start": "node bin/web-server && npm run dev",
-    "dev": "vite"
+    "format": "prettier --write ."
   },
   "author": "",
   "license": "ISC",
   "description": "CLI tool for generating XMP metadata files from video files",
   "dependencies": {
-    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dist-exiftool": "^10.53.0",
-    "express": "^5.1.0",
-    "multer": "^2.0.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.5.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^15.14.0",
-    "prettier": "^3.4.2",
-    "vite": "^6.3.5"
+    "prettier": "^3.4.2"
   }
 }

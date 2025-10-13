@@ -1,4 +1,17 @@
 {
-  "extensions": ["mp4", "mov", "avi", "mkv", "jpg", "jpeg", "png", "gif", "arw", "raw", "cr2", "nef"],
-  "targetDirectory": "/mnt/e/Capture One/photos/2025-06-11"
+  "extensions": [
+    "mp4",
+    "mov",
+    "avi",
+    "mkv",
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "arw",
+    "raw",
+    "cr2",
+    "nef"
+  ],
+  "targetDirectory": "/mnt/e/Capture One Import"
 }
