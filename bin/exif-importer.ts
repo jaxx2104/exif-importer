@@ -1,13 +1,13 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-env
 
-import { getConfiguration } from "../lib/cli/index.mjs";
+import { getConfiguration } from "../lib/cli/index.ts";
 import {
-  getFilesWithExtensions,
   buildFilePaths,
-  writeXMPFile,
-  getMetadata,
   generateXMPContent,
-} from "../lib/core/index.mjs";
+  getFilesWithExtensions,
+  getMetadata,
+  writeXMPFile,
+} from "../lib/core/index.ts";
 
 async function main() {
   try {
@@ -22,7 +22,7 @@ async function main() {
         );
 
         const metadata = await getMetadata(inputFile, xmlFile);
-        const fileExtension = file.split('.').pop().toUpperCase();
+        const fileExtension = file.split(".").pop()?.toUpperCase() || "";
         const xmpContent = generateXMPContent(fileExtension, metadata);
 
         await writeXMPFile(outputXMP, xmpContent);
@@ -32,8 +32,8 @@ async function main() {
       }
     }
   } catch (error) {
-    console.error(error.message);
-    process.exit(1);
+    console.error(error instanceof Error ? error.message : String(error));
+    Deno.exit(1);
   }
 }
 

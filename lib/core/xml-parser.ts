@@ -1,7 +1,8 @@
 import { parseStringPromise } from "xml2js";
-import { readXMLFile } from "./file-utils.mjs";
+import { readXMLFile } from "./file-utils.ts";
 
-export async function parseXmlFile(xmlPath) {
+// deno-lint-ignore no-explicit-any
+export async function parseXmlFile(xmlPath: string): Promise<any> {
   try {
     const xmlData = await readXMLFile(xmlPath);
     return await parseStringPromise(xmlData, {

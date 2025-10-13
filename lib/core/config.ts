@@ -1,17 +1,19 @@
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve } from "@std/path";
 
 const CONFIG_FILENAME = "exif-importer.config.json";
 
 function findConfigFile() {
   const configPaths = [
-    resolve(process.cwd(), CONFIG_FILENAME),
-    resolve(process.env.HOME, CONFIG_FILENAME),
+    resolve(Deno.cwd(), CONFIG_FILENAME),
+    resolve(Deno.env.get("HOME") || "", CONFIG_FILENAME),
   ];
 
   for (const configPath of configPaths) {
-    if (existsSync(configPath)) {
+    try {
+      Deno.statSync(configPath);
       return configPath;
+    } catch {
+      // File doesn't exist, continue
     }
   }
 
@@ -24,7 +26,7 @@ function findConfigFile() {
 export function loadConfig() {
   try {
     const configPath = findConfigFile();
-    const configContent = readFileSync(configPath, "utf8");
+    const configContent = Deno.readTextFileSync(configPath);
     const config = JSON.parse(configContent);
 
     // Support both legacy single extension and new multiple extensions

@@ -1,4 +1,15 @@
-export function generateXMPContent(fileExtension, metadata) {
+interface Metadata {
+  createDate: string;
+  modifyDate: string;
+  gpsLongitude: string;
+  gpsLatitude: string;
+  cameraModel: string;
+}
+
+export function generateXMPContent(
+  fileExtension: string,
+  metadata: Metadata,
+): string {
   const { createDate, modifyDate, gpsLongitude, gpsLatitude, cameraModel } =
     metadata;
 

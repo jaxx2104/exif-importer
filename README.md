@@ -1,48 +1,81 @@
 # Exif Importer
 
-A tool to export video metadata in XMP format
+A Deno CLI tool to generate XMP metadata files from video files by combining EXIF data and companion XML files.
+
+## Prerequisites
+
+- [Deno](https://deno.com/) installed
+- [ExifTool](https://exiftool.org/) installed and available in PATH
 
 ## Installation
 
+### Option 1: Run directly
+
 ```bash
-npm install -g .
+deno task start
+```
+
+### Option 2: Install globally
+
+```bash
+deno install --global --allow-read --allow-write --allow-run --allow-env -n exif-importer bin/exif-importer.ts
+```
+
+## Configuration
+
+Create `exif-importer.config.json` in your project root or home directory:
+
+```json
+{
+  "extensions": ["mp4", "mov"],
+  "targetDirectory": "/path/to/video/files"
+}
+```
+
+Or use the legacy single extension format:
+
+```json
+{
+  "extension": "mp4",
+  "targetDirectory": "/path/to/video/files"
+}
 ```
 
 ## Usage
 
+After configuration:
+
 ```bash
-exif-importer -e <extension> -t <target-directory>
+exif-importer
 ```
 
-Example:
+Or run directly:
 
 ```bash
-exif-importer -e mp4 -t /path/to/videos
+deno task start
 ```
 
 ## Module Structure
 
-- `cli.mjs`: CLI argument processing
-- `file-utils.mjs`: File operations
-- `xml-parser.mjs`: XML parsing
-- `date-formatter.mjs`: Date formatting
-- `xmp-generator.mjs`: XMP generation
-- `metadata-processor.mjs`: Metadata processing
+- `lib/core/config.ts`: Configuration loading
+- `lib/core/file-utils.ts`: File operations
+- `lib/core/xml-parser.ts`: XML parsing
+- `lib/core/date-formatter.ts`: Date formatting
+- `lib/core/xmp-generator.ts`: XMP generation
+- `lib/core/metadata-processor.ts`: Metadata processing
+- `lib/cli/`: CLI interface
 
 ## Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Run tests
-npm test
+# Check types
+deno task check
 
 # Run linter
-npm run lint
+deno task lint
 
 # Run formatter
-npm run format
+deno task format
 ```
 
 ## License

@@ -5,58 +5,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 **Development:**
-- `npm install` - Install dependencies
-- `npm run lint` - Run ESLint with auto-fix
-- `npm run format` - Format code with Prettier
+- `deno task check` - Type check TypeScript files
+- `deno task lint` - Run Deno linter
+- `deno task format` - Format code with Deno formatter
 
 **CLI Usage:**
-- `npm install -g .` - Install CLI globally
-- `exif-importer` - Run the CLI tool (requires configuration file)
+- `deno task start` - Run the CLI tool (requires configuration file)
+- `deno install --global --allow-read --allow-write --allow-run --allow-env -n exif-importer bin/exif-importer.ts` - Install CLI globally
 
 **Configuration:**
 - Create `exif-importer.config.json` in project root or home directory with:
   ```json
   {
-    "extension": "mp4",
+    "extensions": ["mp4", "mov"],
     "targetDirectory": "/path/to/video/files"
   }
   ```
 
 ## Architecture
 
-This is a Node.js CLI tool that generates XMP metadata files from video files by combining EXIF data and companion XML files.
+This is a Deno CLI tool (migrated from Node.js) that generates XMP metadata files from video files by combining EXIF data and companion XML files.
 
 **Directory Structure:**
 ```
 lib/
 ├── core/           # Core functionality
-│   ├── config.mjs         # Configuration loading
-│   ├── file-utils.mjs     # File discovery and path construction
-│   ├── metadata-processor.mjs # EXIF and XML data processing
-│   ├── xml-parser.mjs     # XML parsing utilities
-│   ├── xmp-generator.mjs  # XMP format generation
-│   ├── date-formatter.mjs # Date formatting utilities
-│   └── index.mjs          # Core module exports
+│   ├── config.ts         # Configuration loading
+│   ├── file-utils.ts     # File discovery and path construction
+│   ├── metadata-processor.ts # EXIF and XML data processing
+│   ├── xml-parser.ts     # XML parsing utilities
+│   ├── xmp-generator.ts  # XMP format generation
+│   ├── date-formatter.ts # Date formatting utilities
+│   └── index.ts          # Core module exports
 └── cli/            # CLI-specific interface
-    ├── cli.mjs           # CLI configuration interface
-    └── index.mjs         # CLI module exports
+    ├── cli.ts           # CLI configuration interface
+    └── index.ts         # CLI module exports
 ```
 
 **CLI Processing Flow:**
-1. `bin/exif-importer` - CLI entry point
+1. `bin/exif-importer.ts` - CLI entry point (Deno script)
 2. `lib/cli/` - Configuration loading interface
 3. `lib/core/` - Core processing modules
 4. Output: XMP sidecar files with standardized Adobe metadata format
 
 **Key Data Sources:**
-- EXIF metadata extracted using dist-exiftool package
+- EXIF metadata extracted using system `exiftool` command (via Deno.Command)
 - Companion XML files (e.g., C0001M01.XML alongside C0001.MP4) containing GPS and device info
 - Output: XMP sidecar files with standardized Adobe metadata format
 
 **Module Dependencies:**
-- `dist-exiftool` for EXIF extraction
-- `xml2js` for parsing companion XML files
-- `date-fns` for date formatting
-- Uses ES modules (type: "module" in package.json)
+- System `exiftool` command for EXIF extraction
+- `xml2js` (npm:xml2js) for parsing companion XML files
+- `date-fns` (npm:date-fns) for date formatting
+- `@std/path` (jsr:@std/path) for path operations
+- Uses TypeScript with Deno's native TypeScript support
 
 The tool is designed specifically for Sony camera formats but the architecture supports extending to other camera manufacturers through the XML parsing layer.
