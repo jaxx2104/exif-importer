@@ -1,0 +1,4 @@
+{
+  "extensions": ["mp4", "mov", "avi", "mkv", "jpg", "jpeg", "png", "gif", "heic", "arw", "raw", "cr2", "nef"],
+  "targetDirectory": "sample/a6500/movie"
+}

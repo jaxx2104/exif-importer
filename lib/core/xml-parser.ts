@@ -1,16 +1,25 @@
 import { parseStringPromise } from "xml2js";
-import { readXMLFile } from "./file-utils.ts";
+import type { XmlData } from "../types.ts";
+import { fileExists, readXmlFile } from "../file-io.ts";
+import { XmlParseError } from "../errors.ts";
 
-// deno-lint-ignore no-explicit-any
-export async function parseXmlFile(xmlPath: string): Promise<any> {
+export async function parseXmlFile(
+  xmlPath: string,
+): Promise<XmlData | undefined> {
+  if (!fileExists(xmlPath)) {
+    return undefined;
+  }
+
   try {
-    const xmlData = await readXMLFile(xmlPath);
-    return await parseStringPromise(xmlData, {
+    const xmlContent = readXmlFile(xmlPath);
+    const parsed = await parseStringPromise(xmlContent, {
       explicitArray: false,
       mergeAttrs: true,
     });
+    return parsed as XmlData;
   } catch (error) {
-    console.error(`XMLファイルの読み込みに失敗しました: ${error}`);
-    return {};
+    throw new XmlParseError(
+      `XMLファイルの読み込みに失敗しました: ${error}`,
+    );
   }
 }

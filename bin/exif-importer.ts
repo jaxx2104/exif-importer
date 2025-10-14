@@ -1,34 +1,55 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-env
 
-import { getConfiguration } from "../lib/cli/index.ts";
 import {
+  assembleMetadata,
   buildFilePaths,
-  generateXMPContent,
-  getFilesWithExtensions,
-  getMetadata,
-  writeXMPFile,
+  generateXmpContent,
+  getFilesWithExtensionsRecursive,
+  loadConfig,
+  writeXmpFile,
 } from "../lib/core/index.ts";
+
+function parseArgs(): { targetDirectory?: string } {
+  const args = Deno.args;
+  const dirIndex = args.indexOf("--dir");
+
+  if (dirIndex !== -1 && dirIndex + 1 < args.length) {
+    return { targetDirectory: args[dirIndex + 1] };
+  }
+
+  return {};
+}
 
 async function main() {
   try {
-    const { extensions, targetDirectory } = getConfiguration();
-    const files = getFilesWithExtensions(targetDirectory, extensions);
+    const cliArgs = parseArgs();
+    const config = loadConfig();
 
-    for (const file of files) {
+    // CLI引数でディレクトリが指定されていればオーバーライド
+    const targetDirectory = cliArgs.targetDirectory || config.targetDirectory;
+    const extensions = config.extensions;
+
+    const fileInfos = getFilesWithExtensionsRecursive(
+      targetDirectory,
+      extensions,
+    );
+
+    for (const fileInfo of fileInfos) {
       try {
-        const { inputFile, outputXMP, xmlFile } = buildFilePaths(
-          targetDirectory,
-          file,
+        const { inputFile, outputXmp, xmlFile } = buildFilePaths(
+          fileInfo.directory,
+          fileInfo.fileName,
         );
 
-        const metadata = await getMetadata(inputFile, xmlFile);
-        const fileExtension = file.split(".").pop()?.toUpperCase() || "";
-        const xmpContent = generateXMPContent(fileExtension, metadata);
+        const metadata = await assembleMetadata(inputFile, xmlFile);
+        const fileExtension = fileInfo.fileName.split(".").pop()
+          ?.toUpperCase() || "";
+        const xmpContent = generateXmpContent(fileExtension, metadata);
 
-        await writeXMPFile(outputXMP, xmpContent);
-        console.log(`Successfully created: ${outputXMP}`);
+        writeXmpFile(outputXmp, xmpContent);
+        console.log(`Successfully created: ${outputXmp}`);
       } catch (error) {
-        console.error(`Error processing file ${file}:`, error);
+        console.error(`Error processing file ${fileInfo.fileName}:`, error);
       }
     }
   } catch (error) {

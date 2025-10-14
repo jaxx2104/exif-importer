@@ -1,12 +1,6 @@
-interface Metadata {
-  createDate: string;
-  modifyDate: string;
-  gpsLongitude: string;
-  gpsLatitude: string;
-  cameraModel: string;
-}
+import type { Metadata } from "../types.ts";
 
-export function generateXMPContent(
+export function generateXmpContent(
   fileExtension: string,
   metadata: Metadata,
 ): string {

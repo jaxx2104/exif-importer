@@ -1,12 +1,12 @@
 // Core functionality exports
 export { loadConfig } from "./config.ts";
 export { formatDate } from "./date-formatter.ts";
+export { buildFilePaths, writeXmpFile } from "../file-io.ts";
 export {
-  buildFilePaths,
-  getFilesWithExtension,
   getFilesWithExtensions,
-  writeXMPFile,
-} from "./file-utils.ts";
-export { getMetadata } from "./metadata-processor.ts";
+  getFilesWithExtensionsRecursive,
+} from "../file-scanner.ts";
+export { extractExifMetadata } from "../exif-extractor.ts";
+export { assembleMetadata } from "../metadata-assembler.ts";
 export { parseXmlFile } from "./xml-parser.ts";
-export { generateXMPContent } from "./xmp-generator.ts";
+export { generateXmpContent } from "./xmp-generator.ts";

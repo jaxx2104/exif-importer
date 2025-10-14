@@ -1,5 +1,4 @@
 node_modules
-sample
 .vscode
 
 # Coders in Flow shadow git storage
@@ -7,3 +6,6 @@ sample
 
 # macOS system files
 .DS_Store
+
+# Sample directory (except generated XMP files for testing)
+sample/**/*.xmp
