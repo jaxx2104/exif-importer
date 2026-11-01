@@ -1,4 +1,5 @@
-import { basename, extname, join } from "@std/path";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
+import { basename, extname, join } from "node:path";
 import type { FilePaths } from "./types.ts";
 
 export function buildFilePaths(targetDir: string, fileName: string): FilePaths {
@@ -10,21 +11,25 @@ export function buildFilePaths(targetDir: string, fileName: string): FilePaths {
 }
 
 export function writeXmpFile(outputPath: string, content: string): void {
-  return Deno.writeTextFileSync(outputPath, content);
+  writeFileSync(outputPath, content);
 }
 
 export function readXmlFile(xmlPath: string): string {
-  return Deno.readTextFileSync(xmlPath);
+  return readFileSync(xmlPath, "utf-8");
 }
 
 export function fileExists(filePath: string): boolean {
   try {
-    Deno.statSync(filePath);
+    statSync(filePath);
     return true;
   } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
+    if (isErrnoException(error) && error.code === "ENOENT") {
       return false;
     }
     throw error;
   }
+}
+
+function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }

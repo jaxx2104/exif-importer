@@ -1,29 +1,35 @@
 # Exif Importer
 
-A Deno CLI tool to generate XMP metadata files from video files by combining EXIF data and companion XML files.
+A Bun CLI tool to generate XMP sidecar files from video and photo files by combining EXIF data and companion XML files.
 
 ## Prerequisites
 
-- [Deno](https://deno.com/) installed
+- [Bun](https://bun.sh/) (the version is pinned in `mise.toml`; run `mise install` if you use [mise](https://mise.jdx.dev/))
 - [ExifTool](https://exiftool.org/) installed and available in PATH
 
 ## Installation
 
+```bash
+bun install
+```
+
 ### Option 1: Run directly
 
 ```bash
-deno task start
+bun run start
 ```
 
 ### Option 2: Install globally
 
 ```bash
-deno install --global --allow-read --allow-write --allow-run --allow-env -n exif-importer bin/exif-importer.ts
+bun link
 ```
+
+This registers the `exif-importer` command from `package.json` `bin`.
 
 ## Configuration
 
-Create `exif-importer.config.json` in your project root or home directory:
+Create `exif-importer.config.json` in your current directory or home directory:
 
 ```json
 {
@@ -49,33 +55,34 @@ After configuration:
 exif-importer
 ```
 
-Or run directly:
+Override the target directory with `--dir`:
 
 ```bash
-deno task start
+exif-importer --dir /path/to/files
 ```
+
+Files are scanned recursively. For each match, a `.xmp` sidecar is written next to the source file.
 
 ## Module Structure
 
+- `bin/exif-importer.ts`: CLI entry point
 - `lib/core/config.ts`: Configuration loading
-- `lib/core/file-utils.ts`: File operations
-- `lib/core/xml-parser.ts`: XML parsing
+- `lib/core/xml-parser.ts`: Companion XML parsing
 - `lib/core/date-formatter.ts`: Date formatting
 - `lib/core/xmp-generator.ts`: XMP generation
-- `lib/core/metadata-processor.ts`: Metadata processing
-- `lib/cli/`: CLI interface
+- `lib/file-scanner.ts`: Recursive file discovery
+- `lib/file-io.ts`: Path construction and file I/O
+- `lib/exif-extractor.ts`: EXIF extraction via `exiftool`
+- `lib/metadata-assembler.ts`: Merging EXIF and XML metadata
 
 ## Development
 
 ```bash
-# Check types
-deno task check
-
-# Run linter
-deno task lint
-
-# Run formatter
-deno task format
+bun run check    # Type check (tsc --noEmit)
+bun run lint     # Lint (Biome)
+bun run format   # Format (Biome)
+bun test         # Unit tests (bun:test, requires exiftool)
+bun run sample   # Generate XMP files for files under sample/
 ```
 
 ## License

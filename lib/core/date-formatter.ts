@@ -14,7 +14,7 @@ export function formatDate(inputDateStr: string | undefined): string | null {
     const [year, month, day] = datePart.split(":").map(Number);
     const [hour, minute, second] = timePart.split(":").map(Number);
 
-    if ([year, month, day, hour, minute, second].some(isNaN)) {
+    if ([year, month, day, hour, minute, second].some(Number.isNaN)) {
       return null;
     }
 

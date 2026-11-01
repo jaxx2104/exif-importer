@@ -1,6 +1,7 @@
-import { resolve } from "@std/path";
-import type { Config } from "../types.ts";
+import { readFileSync, statSync } from "node:fs";
+import { resolve } from "node:path";
 import { ConfigError } from "../errors.ts";
+import type { Config } from "../types.ts";
 
 const CONFIG_FILENAME = "exif-importer.config.json";
 
@@ -12,13 +13,13 @@ interface ConfigFile {
 
 function findConfigFile(): string {
   const configPaths = [
-    resolve(Deno.cwd(), CONFIG_FILENAME),
-    resolve(Deno.env.get("HOME") || "", CONFIG_FILENAME),
+    resolve(process.cwd(), CONFIG_FILENAME),
+    resolve(process.env.HOME || "", CONFIG_FILENAME),
   ];
 
   for (const configPath of configPaths) {
     try {
-      Deno.statSync(configPath);
+      statSync(configPath);
       return configPath;
     } catch {
       // File doesn't exist, continue
@@ -45,9 +46,7 @@ function validateConfig(config: ConfigFile): Config {
   }
 
   if (!config.targetDirectory) {
-    throw new ConfigError(
-      "設定ファイルに targetDirectory が必要です",
-    );
+    throw new ConfigError("設定ファイルに targetDirectory が必要です");
   }
 
   return {
@@ -59,7 +58,7 @@ function validateConfig(config: ConfigFile): Config {
 export function loadConfig(): Config {
   try {
     const configPath = findConfigFile();
-    const configContent = Deno.readTextFileSync(configPath);
+    const configContent = readFileSync(configPath, "utf-8");
     const config = JSON.parse(configContent) as ConfigFile;
 
     return validateConfig(config);
