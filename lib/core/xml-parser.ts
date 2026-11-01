@@ -1,7 +1,7 @@
 import { parseStringPromise } from "xml2js";
-import type { XmlData } from "../types.ts";
-import { fileExists, readXmlFile } from "../file-io.ts";
 import { XmlParseError } from "../errors.ts";
+import { fileExists, readXmlFile } from "../file-io.ts";
+import type { XmlData } from "../types.ts";
 
 export async function parseXmlFile(
   xmlPath: string,
@@ -18,8 +18,6 @@ export async function parseXmlFile(
     });
     return parsed as XmlData;
   } catch (error) {
-    throw new XmlParseError(
-      `XMLファイルの読み込みに失敗しました: ${error}`,
-    );
+    throw new XmlParseError(`XMLファイルの読み込みに失敗しました: ${error}`);
   }
 }

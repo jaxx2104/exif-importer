@@ -1,23 +1,24 @@
-import type { ExifData } from "./types.ts";
 import { MetadataExtractionError } from "./errors.ts";
+import type { ExifData } from "./types.ts";
 
 export async function extractExifMetadata(
   inputFile: string,
 ): Promise<ExifData> {
-  const command = new Deno.Command("exiftool", {
-    args: ["-j", inputFile],
-    stdout: "piped",
-    stderr: "piped",
+  const proc = Bun.spawn(["exiftool", "-j", inputFile], {
+    stdout: "pipe",
+    stderr: "pipe",
   });
 
-  const { code, stdout, stderr } = await command.output();
+  const [output, errorText, code] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
 
   if (code !== 0) {
-    const errorText = new TextDecoder().decode(stderr);
     throw new MetadataExtractionError(`ExifToolエラー: ${errorText}`);
   }
 
-  const output = new TextDecoder().decode(stdout);
   const data = JSON.parse(output);
 
   if (!Array.isArray(data) || data.length === 0) {

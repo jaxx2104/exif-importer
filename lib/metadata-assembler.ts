@@ -1,7 +1,7 @@
-import type { Metadata, XmlData } from "./types.ts";
-import { extractExifMetadata } from "./exif-extractor.ts";
-import { parseXmlFile } from "./core/xml-parser.ts";
 import { formatDate } from "./core/date-formatter.ts";
+import { parseXmlFile } from "./core/xml-parser.ts";
+import { extractExifMetadata } from "./exif-extractor.ts";
+import type { Metadata, XmlData } from "./types.ts";
 
 function extractGpsValue(
   xmlData: XmlData | undefined,
@@ -34,16 +34,16 @@ export async function assembleMetadata(
   const nonRealTimeMeta = xmlData?.NonRealTimeMeta;
 
   return {
-    createDate: nonRealTimeMeta?.CreationDate?.value ||
+    createDate:
+      nonRealTimeMeta?.CreationDate?.value ||
       formatDate(exifData.CreateDate) ||
       "N/A",
-    modifyDate: nonRealTimeMeta?.CreationDate?.value ||
+    modifyDate:
+      nonRealTimeMeta?.CreationDate?.value ||
       formatDate(exifData.ModifyDate) ||
       "N/A",
     gpsLongitude: extractGpsValue(xmlData, "Longitude") || "N/A",
     gpsLatitude: extractGpsValue(xmlData, "Latitude") || "N/A",
-    cameraModel: nonRealTimeMeta?.Device?.modelName ||
-      exifData.Model ||
-      "N/A",
+    cameraModel: nonRealTimeMeta?.Device?.modelName || exifData.Model || "N/A",
   };
 }

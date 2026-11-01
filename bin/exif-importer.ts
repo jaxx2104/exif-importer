@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-env
+#!/usr/bin/env bun
 
 import {
   assembleMetadata,
@@ -10,7 +10,7 @@ import {
 } from "../lib/core/index.ts";
 
 function parseArgs(): { targetDirectory?: string } {
-  const args = Deno.args;
+  const args = process.argv.slice(2);
   const dirIndex = args.indexOf("--dir");
 
   if (dirIndex !== -1 && dirIndex + 1 < args.length) {
@@ -42,8 +42,8 @@ async function main() {
         );
 
         const metadata = await assembleMetadata(inputFile, xmlFile);
-        const fileExtension = fileInfo.fileName.split(".").pop()
-          ?.toUpperCase() || "";
+        const fileExtension =
+          fileInfo.fileName.split(".").pop()?.toUpperCase() || "";
         const xmpContent = generateXmpContent(fileExtension, metadata);
 
         writeXmpFile(outputXmp, xmpContent);
@@ -54,7 +54,7 @@ async function main() {
     }
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
-    Deno.exit(1);
+    process.exit(1);
   }
 }
 
